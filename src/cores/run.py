@@ -124,7 +124,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--max_epochs",
-        default=10,
+        default=5,
         type=int,
         help="Limits training to a max number number of epochs",
     )
@@ -161,20 +161,20 @@ if __name__ == "__main__":
 
     # parameters
     hparams.gpus = 1
-    hparams.batch_size = 4
+    hparams.batch_size = 64
     hparams.accumulate_grad_batches = 1
     hparams.loader_workers = 0
     hparams.nr_frozen_epochs = 1
     hparams.encoder_model = '../../data/bert'
-    hparams.train_csv = '../../data/output/imdb_reviews_train.csv'
-    hparams.test_csv = '../../data/output/imdb_reviews_test.csv'
-    hparams.dev_csv = '../../data/output/imdb_reviews_test.csv'
+    # hparams.train_csv = '../../data/output/imdb_reviews_train.csv'
+    # hparams.test_csv = '../../data/output/imdb_reviews_test.csv'
+    # hparams.dev_csv = '../../data/output/imdb_reviews_test.csv'
 
-    # hparams.train_csv = '../../data/output/train.csv'
-    # hparams.dev_csv = '../../data/output/dev.csv'
-    # hparams.test_csv = '../../data/output/dev.csv'
-    # hparams.label_set = '0,1,2,3,4,5,6,7,8,9,10'
-    # hparams.num_labels = 11
+    hparams.train_csv = '../../data/output/train.csv'
+    hparams.dev_csv = '../../data/output/dev.csv'
+    hparams.test_csv = '../../data/output/dev.csv'
+    hparams.label_set = '0,1,2,3,4,5,6,7,8,9,10'
+    hparams.num_labels = 11
 
     # ---------------------
     # RUN TRAINING
