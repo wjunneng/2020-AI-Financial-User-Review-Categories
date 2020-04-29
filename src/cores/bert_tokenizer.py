@@ -16,7 +16,6 @@ class BERTTextEncoder(TextEncoder):
     """
     Wrapper arround BERT tokenizer.
     """
-
     def __init__(self, pretrained_model) -> None:
         self.enforce_reversible = False
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model)

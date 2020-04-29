@@ -18,9 +18,7 @@ def collate_lists(text: list, label: list) -> dict:
     return collated_dataset
 
 
-def sentiment_analysis_dataset(
-    hparams: HyperOptArgumentParser, train=True, val=True, test=True
-):
+def sentiment_analysis_dataset(hparams: HyperOptArgumentParser, train=True, val=True, test=True):
     """
     Loads the Dataset from the csv files passed to the parser.
     :param hparams: HyperOptArgumentParser obj containg the path to the data files.
@@ -35,7 +33,7 @@ def sentiment_analysis_dataset(
     def load_dataset(path):
         df = pd.read_csv(path)
         text = list(df.text)
-        label = list(df.sentiment)
+        label = list(df.label)
         assert len(text) == len(label)
         return Dataset(collate_lists(text, label))
 
