@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
-import os
-import sys
-
-os.chdir(sys.path[0])
 import pandas as pd
 
 from test_tube import HyperOptArgumentParser
@@ -18,7 +13,9 @@ def collate_lists(text: list, label: list) -> dict:
     return collated_dataset
 
 
-def sentiment_analysis_dataset(hparams: HyperOptArgumentParser, train=True, val=True, test=True):
+def sentiment_analysis_dataset(
+    hparams: HyperOptArgumentParser, train=True, val=True, test=True
+):
     """
     Loads the Dataset from the csv files passed to the parser.
     :param hparams: HyperOptArgumentParser obj containg the path to the data files.
@@ -33,7 +30,8 @@ def sentiment_analysis_dataset(hparams: HyperOptArgumentParser, train=True, val=
     def load_dataset(path):
         df = pd.read_csv(path)
         text = list(df.text)
-        label = list(df.label)
+        label = list(df.sentiment)
+        # label = list(df.label)
         assert len(text) == len(label)
         return Dataset(collate_lists(text, label))
 

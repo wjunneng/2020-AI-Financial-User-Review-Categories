@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
-import os
-import sys
-
-os.chdir(sys.path[0])
 import logging as log
 from collections import OrderedDict
 
@@ -15,13 +10,13 @@ from torch.utils.data import DataLoader, RandomSampler
 from transformers import AutoModel
 
 import pytorch_lightning as pl
+
 from test_tube import HyperOptArgumentParser
 from torchnlp.encoders import LabelEncoder
 from torchnlp.utils import collate_tensors, lengths_to_mask
-
+from src.libs.utils import mask_fill
 from src.cores.bert_tokenizer import BERTTextEncoder
 from src.libs.dataloader import sentiment_analysis_dataset
-from src.libs.utils import mask_fill
 
 
 class BERTClassifier(pl.LightningModule):
@@ -50,7 +45,9 @@ class BERTClassifier(pl.LightningModule):
 
     def __build_model(self) -> None:
         """ Init BERT model + tokenizer + classification head."""
-        self.bert = AutoModel.from_pretrained(self.hparams.encoder_model, num_labels=11, output_hidden_states=True)
+        self.bert = AutoModel.from_pretrained(
+            self.hparams.encoder_model, output_hidden_states=True, num_labels=11
+        )
 
         # set the number of features our encoder model will return...
         if self.hparams.encoder_model == "google/bert_uncased_L-2_H-128_A-2":
@@ -175,7 +172,6 @@ class BERTClassifier(pl.LightningModule):
         # Prepare target:
         try:
             targets = {"labels": self.label_encoder.batch_encode(sample["label"])}
-            print(targets)
             return inputs, targets
         except RuntimeError:
             raise Exception("Label encoder found an unknown label.")
@@ -233,7 +229,7 @@ class BERTClassifier(pl.LightningModule):
             loss_val = loss_val.unsqueeze(0)
             val_acc = val_acc.unsqueeze(0)
 
-        output = OrderedDict({"val_loss": loss_val, "val_acc": val_acc})
+        output = OrderedDict({"val_loss": loss_val, "val_acc": val_acc, })
 
         # can also return just a scalar instead of a dict (return loss_val)
         return output
@@ -328,7 +324,9 @@ class BERTClassifier(pl.LightningModule):
         )
 
     @classmethod
-    def add_model_specific_args(cls, parser: HyperOptArgumentParser) -> HyperOptArgumentParser:
+    def add_model_specific_args(
+            cls, parser: HyperOptArgumentParser
+    ) -> HyperOptArgumentParser:
         """ Parser for Estimator specific arguments/hyperparameters.
         :param parser: HyperOptArgumentParser obj
 
@@ -370,19 +368,19 @@ class BERTClassifier(pl.LightningModule):
         )
         parser.add_argument(
             "--train_csv",
-            default="../../data/input/imdb_reviews_train.csv",
+            default="data/imdb_reviews_train.csv",
             type=str,
             help="Path to the file containing the train data.",
         )
         parser.add_argument(
             "--dev_csv",
-            default="../../data/input/imdb_reviews_test.csv",
+            default="data/imdb_reviews_test.csv",
             type=str,
             help="Path to the file containing the dev data.",
         )
         parser.add_argument(
             "--test_csv",
-            default="../../data/input/imdb_reviews_test.csv",
+            default="data/imdb_reviews_test.csv",
             type=str,
             help="Path to the file containing the dev data.",
         )

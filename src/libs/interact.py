@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function
+"""
+Runs a script to interact with a model using the shell.
+"""
 import os
-import sys
-
-os.chdir(sys.path[0])
 
 import pandas as pd
 
-from test_tube import HyperOptArgumentParser
 from src.cores.bert_classifier import BERTClassifier
+from test_tube import HyperOptArgumentParser
 
 
 def load_model_from_experiment(experiment_folder: str):
