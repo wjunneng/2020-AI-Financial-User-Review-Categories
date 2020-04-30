@@ -7,6 +7,7 @@ import pandas as pd
 
 from test_tube import HyperOptArgumentParser
 from src.cores.bert_classifier import BERTClassifier
+from collections import Counter
 
 
 def load_model_from_experiment(experiment_folder: str):
@@ -52,10 +53,22 @@ if __name__ == "__main__":
     for index in range(test.shape[0]):
         if index % 1000 == 0:
             print(index)
-        text = test.iloc[index, 0][:500]
 
-        prediction = model.predict(sample={"text": text})
-        labels.append(prediction['predicted_label'])
+        prediction_list = []
+        text = test.iloc[index, 0]
+        while text:
+            prediction = model.predict(sample={"text": text[:500]})['predicted_label']
+            prediction_list.append(prediction)
+            text = text[500:]
+            if len(text) < 500:
+                if len(text) < 10:
+                    break
+                prediction = model.predict(sample={"text": text})['predicted_label']
+                prediction_list.append(prediction)
+                break
+
+        word_count = Counter(prediction_list)
+        labels.append(word_count.most_common(1)[0][0])
 
     test['label'] = labels
     test['label'].to_csv('../../data/output/keys.csv', header=None, encoding='utf-8')
