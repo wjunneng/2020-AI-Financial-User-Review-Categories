@@ -12,7 +12,7 @@ from test_tube import HyperOptArgumentParser
 from torchnlp.random import set_seed
 
 from src.libs.utils import setup_testube_logger
-from src.cores.bert_classifier import BERTClassifier
+from src.cores.longformer_classifier import LONGFORMERClassifier
 
 
 def main(hparams) -> None:
@@ -24,7 +24,7 @@ def main(hparams) -> None:
     # ------------------------
     # 1 INIT LIGHTNING MODEL
     # ------------------------
-    model = BERTClassifier(hparams)
+    model = LONGFORMERClassifier(hparams)
 
     # ------------------------
     # 2 INIT EARLY STOPPING
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     )
 
     # each LightningModule defines arguments relevant to it
-    parser = BERTClassifier.add_model_specific_args(parser)
+    parser = LONGFORMERClassifier.add_model_specific_args(parser)
     hparams = parser.parse_args()
 
     # parameters
@@ -166,9 +166,6 @@ if __name__ == "__main__":
     hparams.loader_workers = 0
     hparams.nr_frozen_epochs = 1
     hparams.encoder_model = '../../data/bert'
-    # hparams.train_csv = '../../data/output/imdb_reviews_train.csv'
-    # hparams.test_csv = '../../data/output/imdb_reviews_test.csv'
-    # hparams.dev_csv = '../../data/output/imdb_reviews_test.csv'
 
     hparams.train_csv = '../../data/output/train.csv'
     hparams.dev_csv = '../../data/output/dev.csv'
