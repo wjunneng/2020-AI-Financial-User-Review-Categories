@@ -47,9 +47,10 @@ class LONGFORMERClassifier(pl.LightningModule):
 
     def __build_model(self) -> None:
         """ Init BERT model + tokenizer + classification head."""
-        self.bert = AutoModel.from_pretrained(
-            self.hparams.encoder_model, output_hidden_states=True, num_labels=11
-        )
+        # self.bert = AutoModel.from_pretrained(
+        #     self.hparams.encoder_model, output_hidden_states=True, num_labels=11
+        # )
+        self.bert = Longformer.from_pretrained(self.hparams.encoder_model)
 
         # set the number of features our encoder model will return...
         if self.hparams.encoder_model == "google/bert_uncased_L-2_H-128_A-2":
@@ -58,7 +59,7 @@ class LONGFORMERClassifier(pl.LightningModule):
             self.encoder_features = 768
 
         # Tokenizer
-        self.tokenizer = Longformer.from_pretrained('../../data/longformer-base-4096/')
+        self.tokenizer = LONGFORMERTextEncoder('../../data/roberta-base-pytorch/')
 
         # Label Encoder
         self.label_encoder = LabelEncoder(self.hparams.label_set.split(","), reserved_labels=[])

@@ -5,6 +5,7 @@ from transformers import AutoTokenizer
 from torchnlp.encoders import Encoder
 from torchnlp.encoders.text import stack_and_pad_tensors
 from torchnlp.encoders.text.text_encoder import TextEncoder
+from src.longformer import longformer
 
 
 class LONGFORMERTextEncoder(TextEncoder):
@@ -14,8 +15,7 @@ class LONGFORMERTextEncoder(TextEncoder):
 
     def __init__(self, pretrained_model) -> None:
         self.enforce_reversible = False
-        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model)
-        self.itos = self.tokenizer.ids_to_tokens
+        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=pretrained_model)
 
     @property
     def unk_index(self) -> int:

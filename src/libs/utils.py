@@ -88,15 +88,20 @@ def generate_train_dev_csv(input_train_path, output_train_path, output_dev_path)
             text = data.iloc[index, 0]
             label = data.iloc[index, 1]
 
-            while len(text) > 0:
-                texts.append(text[:500])
-                text = text[500:]
+            # 截断
+            # while len(text) > 0:
+            #     texts.append(text[:500])
+            #     text = text[500:]
+            #
+            #     # 原始的数据
+            #     labels.append(label)
+            #
+            #     if len(text) < 500:
+            #         break
 
-                # 原始的数据
-                labels.append(label)
-
-                if len(text) < 500:
-                    break
+            # 不截断
+            texts.append(text)
+            labels.append(label)
 
             if len(text) < 5:
                 continue
