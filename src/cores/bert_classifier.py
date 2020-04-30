@@ -126,7 +126,6 @@ class BERTClassifier(pl.LightningModule):
         # but when splitting batches across GPU the tokens have padding
         # from the entire original batch
         mask = lengths_to_mask(lengths, device=tokens.device)
-        print(tokens.shape, mask.shape)
         # Run BERT model.
         word_embeddings = self.bert(tokens, mask)[0]
 

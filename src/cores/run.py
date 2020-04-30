@@ -43,7 +43,7 @@ def main(hparams) -> None:
         logger=setup_testube_logger(),
         checkpoint_callback=True,
         early_stop_callback=early_stop_callback,
-        default_save_path="experiments/",
+        default_save_path="../../data/experiments/",
         gpus=hparams.gpus,
         distributed_backend="dp",
         use_amp=False,
@@ -118,13 +118,13 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--min_epochs",
-        default=1,
+        default=3,
         type=int,
         help="Limits training to a minimum number of epochs",
     )
     parser.add_argument(
         "--max_epochs",
-        default=5,
+        default=6,
         type=int,
         help="Limits training to a max number number of epochs",
     )
@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
     # parameters
     hparams.gpus = 1
-    hparams.batch_size = 64
+    hparams.batch_size = 4
     hparams.accumulate_grad_batches = 1
     hparams.loader_workers = 0
     hparams.nr_frozen_epochs = 1
