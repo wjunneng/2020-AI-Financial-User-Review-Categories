@@ -6,7 +6,7 @@ import os
 import pandas as pd
 
 from test_tube import HyperOptArgumentParser
-from src.cores.bert_classifier import BERTClassifier
+from src.cores.longformer_classifier import LONGFORMERClassifier
 from collections import Counter
 
 
@@ -24,9 +24,9 @@ def load_model_from_experiment(experiment_folder: str):
         if file.endswith(".ckpt")
     ]
     checkpoint_path = experiment_folder + "/checkpoints/" + checkpoints[-1]
-    model = BERTClassifier.load_from_metrics(
-        weights_path=checkpoint_path, tags_csv=tags_csv_file
-    )
+
+    model = LONGFORMERClassifier.load_from_metrics(weights_path=checkpoint_path, tags_csv=tags_csv_file)
+
     # Make sure model is in prediction mode
     model.eval()
     model.freeze()
@@ -36,7 +36,10 @@ def load_model_from_experiment(experiment_folder: str):
 
 if __name__ == "__main__":
     parser = HyperOptArgumentParser(description="Minimalist BERT Classifier", add_help=True)
-    parser.add_argument("--experiment", default='../../data/experiments/lightning_logs/version_29-04-2020--22-14-10',
+    # parser.add_argument("--experiment", default='../../data/experiments/lightning_logs/version_29-04-2020--22-14-10',
+    #                     type=str, help="Path to the experiment folder.")
+
+    parser.add_argument("--experiment", default='../../data/experiments/lightning_logs/version_30-04-2020--16-32-26',
                         type=str, help="Path to the experiment folder.")
     hparams = parser.parse_args()
     print("Loading model...")
@@ -54,21 +57,23 @@ if __name__ == "__main__":
         if index % 1000 == 0:
             print(index)
 
-        prediction_list = []
-        text = test.iloc[index, 0]
-        while text:
-            prediction = model.predict(sample={"text": text[:500]})['predicted_label']
-            prediction_list.append(prediction)
-            text = text[500:]
-            if len(text) < 500:
-                if len(text) < 10:
-                    break
-                prediction = model.predict(sample={"text": text})['predicted_label']
-                prediction_list.append(prediction)
-                break
+        # prediction_list = []
+        # text = test.iloc[index, 0]
+        # while text:
+        #     prediction = model.predict(sample={"text": text[:500]})['predicted_label']
+        #     prediction_list.append(prediction)
+        #     text = text[500:]
+        #     if len(text) < 500:
+        #         if len(text) < 10:
+        #             break
+        #         prediction = model.predict(sample={"text": text})['predicted_label']
+        #         prediction_list.append(prediction)
+        #         break
+        #
+        # word_count = Counter(prediction_list)
+        # labels.append(word_count.most_common(1)[0][0])
 
-        word_count = Counter(prediction_list)
-        labels.append(word_count.most_common(1)[0][0])
+        labels.append(model.predict(sample={'text': test.iloc[index, 0]})['predicted_label'])
 
     test['label'] = labels
-    test['label'].to_csv('../../data/output/keys.csv', header=None, encoding='utf-8')
+    test['label'].to_csv('../../data/output/keys_longformer.csv', header=None, encoding='utf-8')
