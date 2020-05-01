@@ -10,8 +10,6 @@ from tvm.contrib import dlpack
 # import the full tvm library here for compilation. Don't import at the top of the file in case we don't need to compile
 import tvm
 
-# from tvm.contrib import nvcc
-
 
 class DiagonaledMM(torch.autograd.Function):
     '''Class to encapsulate tvm code for compiling a diagonal_mm function, in addition to calling
@@ -29,7 +27,7 @@ class DiagonaledMM(torch.autograd.Function):
         b0, b1, b2: size of tensor tiles. Very important for good performance
 
         '''
-
+        from tvm.contrib import nvcc
         @tvm.register_func
         def tvm_callback_cuda_compile(code):
             """Use nvcc compiler for better perf."""
