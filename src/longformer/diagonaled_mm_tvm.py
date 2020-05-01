@@ -10,7 +10,7 @@ from tvm.contrib import dlpack
 # import the full tvm library here for compilation. Don't import at the top of the file in case we don't need to compile
 import tvm
 
-from tvm.contrib import nvcc
+# from tvm.contrib import nvcc
 
 
 class DiagonaledMM(torch.autograd.Function):
@@ -118,7 +118,7 @@ class DiagonaledMM(torch.autograd.Function):
 
         # compiling the automatically generated cuda code
         diagonaled_mm = tvm.build(s, [X, Y, Z, D, w, w_upper, padding, transpose_t1, t3d3], target=device,
-                                  target_host=tgt_host, name='diagonaled_mm')
+                                    target_host=tgt_host, name='diagonaled_mm')
         return diagonaled_mm
 
     @staticmethod
