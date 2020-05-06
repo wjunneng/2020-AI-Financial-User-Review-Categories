@@ -1,7 +1,13 @@
 """
 Runs a script to interact with a model using the shell.
 """
+from __future__ import absolute_import, division, print_function
 import os
+import sys
+
+sys.path.append('/content/2020-AI-Financial-User-Review-Categories')
+os.chdir(sys.path[0])
+
 import torch
 import pandas as pd
 

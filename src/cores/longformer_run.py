@@ -3,8 +3,8 @@ from __future__ import absolute_import, division, print_function
 import os
 import sys
 
+sys.path.append('/content/2020-AI-Financial-User-Review-Categories')
 os.chdir(sys.path[0])
-import os
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
@@ -118,13 +118,13 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--min_epochs",
-        default=3,
+        default=4,
         type=int,
         help="Limits training to a minimum number of epochs",
     )
     parser.add_argument(
         "--max_epochs",
-        default=6,
+        default=5,
         type=int,
         help="Limits training to a max number number of epochs",
     )
@@ -165,6 +165,8 @@ if __name__ == "__main__":
     hparams.accumulate_grad_batches = 1
     hparams.loader_workers = 0
     hparams.nr_frozen_epochs = 1
+    hparams.min_epochs = 3
+    hparams.max_eppochs = 6
     hparams.encoder_model = '../../data/longformer-base-4096'
 
     hparams.train_csv = '../../data/output/train.csv'
