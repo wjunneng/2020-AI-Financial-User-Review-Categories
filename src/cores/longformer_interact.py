@@ -62,12 +62,14 @@ if __name__ == "__main__":
 
         try:
             label = model.predict(
-                samples=[{'text': test.iloc[index, 0]}, {'text': test.iloc[index + 1, 0]},
+                samples=[{'text': test.iloc[index + 0, 0]},
+                         {'text': test.iloc[index + 1, 0]},
                          {'text': test.iloc[index + 2, 0]},
                          {'text': test.iloc[index + 3, 0]}])['predicted_label']
         except:
             label = model.predict(
-                samples=[{'text': test.iloc[index, 0]}, {'text': test.iloc[index + 1, 0]}])['predicted_label']
+                samples=[{'text': test.iloc[index + 0, 0]},
+                         {'text': test.iloc[index + 1, 0]}])['predicted_label']
 
         labels.extend(label)
 

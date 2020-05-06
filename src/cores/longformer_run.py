@@ -165,8 +165,8 @@ if __name__ == "__main__":
     hparams.accumulate_grad_batches = 1
     hparams.loader_workers = 0
     hparams.nr_frozen_epochs = 1
-    hparams.min_epochs = 3
-    hparams.max_eppochs = 6
+    hparams.min_epochs = 8
+    hparams.max_eppochs = 10
     hparams.encoder_model = '../../data/longformer-base-4096'
 
     hparams.train_csv = '../../data/output/train.csv'
