@@ -71,4 +71,4 @@ if __name__ == "__main__":
         labels.append(word_count.most_common(1)[0][0])
 
     test['label'] = labels
-    test['label'].to_csv('../../data/output/keys.csv', header=None, encoding='utf-8')
+    test['label'].to_csv('../../data/output/keys_bert.csv', header=None, encoding='utf-8')
