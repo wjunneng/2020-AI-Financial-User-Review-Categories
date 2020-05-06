@@ -2,12 +2,13 @@
 Runs a script to interact with a model using the shell.
 """
 import os
-
+import torch
 import pandas as pd
 
 from test_tube import HyperOptArgumentParser
 from src.cores.longformer_classifier import LONGFORMERClassifier
-from collections import Counter
+
+DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 def load_model_from_experiment(experiment_folder: str):
@@ -36,15 +37,11 @@ def load_model_from_experiment(experiment_folder: str):
 
 if __name__ == "__main__":
     parser = HyperOptArgumentParser(description="Minimalist BERT Classifier", add_help=True)
-    # parser.add_argument("--experiment", default='../../data/experiments/lightning_logs/version_29-04-2020--22-14-10',
-    #                     type=str, help="Path to the experiment folder.")
-
     parser.add_argument("--experiment", default='../../data/experiments/lightning_logs/version_30-04-2020--16-32-26',
                         type=str, help="Path to the experiment folder.")
     hparams = parser.parse_args()
     print("Loading model...")
-    model = load_model_from_experiment(hparams.experiment)
-    print(model)
+    model = load_model_from_experiment(hparams.experiment).to(device=DEVICE)
 
     print("Please write a movie review or quit to exit the interactive shell:")
     # Get input sentence
@@ -53,27 +50,16 @@ if __name__ == "__main__":
     test = pd.read_csv(test_path, encoding='utf-8')
 
     labels = []
-    for index in range(test.shape[0]):
+    for index in range(0, test.shape[0], 4):
         if index % 1000 == 0:
             print(index)
 
-        # prediction_list = []
-        # text = test.iloc[index, 0]
-        # while text:
-        #     prediction = model.predict(sample={"text": text[:500]})['predicted_label']
-        #     prediction_list.append(prediction)
-        #     text = text[500:]
-        #     if len(text) < 500:
-        #         if len(text) < 10:
-        #             break
-        #         prediction = model.predict(sample={"text": text})['predicted_label']
-        #         prediction_list.append(prediction)
-        #         break
-        #
-        # word_count = Counter(prediction_list)
-        # labels.append(word_count.most_common(1)[0][0])
-
-        labels.append(model.predict(sample={'text': test.iloc[index, 0]})['predicted_label'])
+        label = model.predict(
+            samples=[{'text': test.iloc[index, 0]}, {'text': test.iloc[index + 1, 0]},
+                     {'text': test.iloc[index + 2, 0]},
+                     {'text': test.iloc[index + 3, 0]}])['predicted_label']
+        print(label)
+        labels.append(label)
 
     test['label'] = labels
     test['label'].to_csv('../../data/output/keys_longformer.csv', header=None, encoding='utf-8')

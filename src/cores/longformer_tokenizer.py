@@ -61,7 +61,7 @@ class LONGFORMERTextEncoder(TextEncoder):
             - torch.Tensor: Encoding of the 'sequence'.
         """
         sequence = TextEncoder.encode(self, sequence)
-        vector = self.tokenizer.encode(sequence)
+        vector = self.tokenizer.encode(sequence, add_special_tokens=True)
         return torch.tensor(vector)
 
     def batch_encode(self, iterator, dim=0, **kwargs) -> (torch.Tensor, torch.Tensor):

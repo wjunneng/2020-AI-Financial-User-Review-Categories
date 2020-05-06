@@ -20,6 +20,8 @@ from src.libs.utils import mask_fill
 from src.libs.dataloader import sentiment_analysis_dataset
 from src.cores.longformer_tokenizer import LONGFORMERTextEncoder
 
+DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 
 class LONGFORMERClassifier(pl.LightningModule):
     """
@@ -92,7 +94,7 @@ class LONGFORMERClassifier(pl.LightningModule):
             param.requires_grad = False
         self._frozen = True
 
-    def predict(self, sample: dict) -> dict:
+    def predict(self, samples: dict) -> dict:
         """ Predict function.
         :param sample: dictionary with the text we want to classify.
 
@@ -103,9 +105,22 @@ class LONGFORMERClassifier(pl.LightningModule):
             self.eval()
 
         with torch.no_grad():
-            model_input, _ = self.prepare_sample([sample], prepare_target=False)
-            model_out = self.forward(**model_input)
-            logits = model_out["logits"].numpy()
+            model_tokens = []
+            model_lengths = []
+            for sample in samples:
+                model_input, _ = self.prepare_sample([sample], prepare_target=False)
+                model_tokens.append(model_input['tokens'])
+                model_lengths.append(model_input['lengths'].numpy()[0])
+
+            model_inputs = dict({'tokens': torch.ones((len(samples), max(model_lengths))).to(torch.int64).to(device=DEVICE)})
+            for token_index in range(len(model_tokens)):
+                current_tokens = model_tokens[token_index].flatten()
+
+                model_inputs['tokens'][token_index][:len(current_tokens)] = current_tokens.to(torch.int64).to(device=DEVICE)
+
+            model_inputs['lengths'] = torch.Tensor(np.asarray(model_lengths)).to(torch.int64).to(device=DEVICE)
+            model_out = self.forward(**model_inputs)
+            logits = model_out["logits"].cpu().numpy()
             predicted_labels = [
                 self.label_encoder.index_to_token[prediction]
                 for prediction in np.argmax(logits, axis=1)
@@ -233,6 +248,71 @@ class LONGFORMERClassifier(pl.LightningModule):
 
         # can also return just a scalar instead of a dict (return loss_val)
         return output
+
+    def test_step(self, batch: tuple, batch_nb: int, *args, **kwargs) -> dict:
+        """ Similar to the testing step but with the model in test mode.
+
+        Returns:
+            - dictionary passed to the test_end function.
+        """
+        inputs, targets = batch
+        model_out = self.forward(**inputs)
+        loss_test = self.loss(model_out, targets)
+
+        y = targets["labels"]
+        y_hat = model_out["logits"]
+
+        # acc
+        labels_hat = torch.argmax(y_hat, dim=1)
+        test_acc = torch.sum(y == labels_hat).item() / (len(y) * 1.0)
+        test_acc = torch.tensor(test_acc)
+
+        if self.on_gpu:
+            test_acc = test_acc.cuda(loss_test.device.index)
+
+        # in DP mode (default) make sure if result is scalar, there's another dim in the beginning
+        if self.trainer.use_dp or self.trainer.use_ddp2:
+            loss_test = loss_test.unsqueeze(0)
+            test_acc = test_acc.unsqueeze(0)
+
+        output = OrderedDict({"test_loss": loss_test, "test_acc": test_acc, })
+
+        # can also return just a scalar instead of a dict (return loss_test)
+        return output
+
+    def test_end(self, outputs: list) -> dict:
+        """ Function that takes as input a list of dictionaries returned by the test_step
+        function and measures the model performance accross the entire test set.
+
+        Returns:
+            - Dictionary with metrics to be added to the lightning logger.
+        """
+        test_loss_mean = 0
+        test_acc_mean = 0
+        for output in outputs:
+            test_loss = output["test_loss"]
+
+            # reduce manually when using dp
+            if self.trainer.use_dp or self.trainer.use_ddp2:
+                test_loss = torch.mean(test_loss)
+            test_loss_mean += test_loss
+
+            # reduce manually when using dp
+            test_acc = output["test_acc"]
+            if self.trainer.use_dp or self.trainer.use_ddp2:
+                test_acc = torch.mean(test_acc)
+
+            test_acc_mean += test_acc
+
+        test_loss_mean /= len(outputs)
+        test_acc_mean /= len(outputs)
+        tqdm_dict = {"test_loss": test_loss_mean, "test_acc": test_acc_mean}
+        result = {
+            "progress_bar": tqdm_dict,
+            "log": tqdm_dict,
+            "test_loss": test_loss_mean,
+        }
+        return result
 
     def validation_end(self, outputs: list) -> dict:
         """ Function that takes as input a list of dictionaries returned by the validation_step
