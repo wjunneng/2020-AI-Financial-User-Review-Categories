@@ -125,7 +125,7 @@ class LONGFORMERClassifier(pl.LightningModule):
                 self.label_encoder.index_to_token[prediction]
                 for prediction in np.argmax(logits, axis=1)
             ]
-            sample["predicted_label"] = predicted_labels[0]
+            sample["predicted_label"] = predicted_labels
 
         return sample
 
