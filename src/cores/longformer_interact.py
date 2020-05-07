@@ -52,7 +52,7 @@ if __name__ == "__main__":
     print("Please write a movie review or quit to exit the interactive shell:")
     # Get input sentence
 
-    test_path = '../../data/input/test.csv'
+    test_path = '../../data/output/test.csv'
     test = pd.read_csv(test_path, encoding='utf-8')
 
     labels = []

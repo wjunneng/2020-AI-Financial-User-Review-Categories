@@ -15,14 +15,17 @@
     score:86.11 / 测试使用多人投票：87.3075
 
     
-    -*= longformer -*-
+    -*- longformer -*-
     min_epochs = 3
-    max_eppochs = 6
+    max_eppochs = 4
     batch:4   
     score:87.8355
     
-    min_epochs = 8
-    max_eppochs = 10
-    batch:4   
+    min_epochs = 3
+    max_eppochs = 5
+    batch:4
     score:89.5073    
+    
+  
+    -*- longformer + preprocess -*-
     
