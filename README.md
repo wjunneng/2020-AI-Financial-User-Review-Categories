@@ -20,3 +20,9 @@
     max_eppochs = 6
     batch:4   
     score:87.8355
+    
+    min_epochs = 8
+    max_eppochs = 10
+    batch:4   
+    score:89.5073    
+    
