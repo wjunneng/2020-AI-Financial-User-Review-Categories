@@ -94,7 +94,7 @@ class LONGFORMERClassifier(pl.LightningModule):
             param.requires_grad = False
         self._frozen = True
 
-    def predict(self, samples: dict) -> dict:
+    def predict(self, samples: dict, probability: bool = False) -> dict:
         """ Predict function.
         :param sample: dictionary with the text we want to classify.
 
@@ -112,19 +112,24 @@ class LONGFORMERClassifier(pl.LightningModule):
                 model_tokens.append(model_input['tokens'])
                 model_lengths.append(model_input['lengths'].numpy()[0])
 
-            model_inputs = dict({'tokens': torch.ones((len(samples), max(model_lengths))).to(torch.int64).to(device=DEVICE)})
+            model_inputs = dict(
+                {'tokens': torch.ones((len(samples), max(model_lengths))).to(torch.int64).to(device=DEVICE)})
             for token_index in range(len(model_tokens)):
                 current_tokens = model_tokens[token_index].flatten()
 
-                model_inputs['tokens'][token_index][:len(current_tokens)] = current_tokens.to(torch.int64).to(device=DEVICE)
+                model_inputs['tokens'][token_index][:len(current_tokens)] = current_tokens.to(torch.int64).to(
+                    device=DEVICE)
 
             model_inputs['lengths'] = torch.Tensor(np.asarray(model_lengths)).to(torch.int64).to(device=DEVICE)
             model_out = self.forward(**model_inputs)
             logits = model_out["logits"].cpu().numpy()
-            predicted_labels = [
-                self.label_encoder.index_to_token[prediction]
-                for prediction in np.argmax(logits, axis=1)
-            ]
+            if probability:
+                predicted_labels = logits[:, 1]
+            else:
+                predicted_labels = [
+                    self.label_encoder.index_to_token[prediction]
+                    for prediction in np.argmax(logits, axis=1)
+                ]
             sample["predicted_label"] = predicted_labels
 
         return sample

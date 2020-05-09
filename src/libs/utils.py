@@ -5,6 +5,7 @@ import sys
 
 os.chdir(sys.path[0])
 from datetime import datetime
+from sklearn.model_selection import train_test_split
 
 import random
 import os
@@ -260,9 +261,44 @@ def generate_test_csv(input_test_path, output_test_path):
     return test
 
 
+def generate_adversarial_validaion(input_train_path, input_dev_path, input_test_path, output_test_path,
+                                   output_train_path):
+    # text, label
+    train = pd.read_csv(input_train_path)
+    # text, label
+    dev = pd.read_csv(input_dev_path)
+    # text
+    test = pd.read_csv(input_test_path)
+
+    train['label_before'] = train['label'].astype(int)
+    dev['label_before'] = dev['label'].astype(int)
+
+    train['label'] = 1
+    dev['label'] = 1
+    test['label'] = 0
+
+    data = pd.concat([train, dev, test], ignore_index=True)
+
+    train_X, test_X, train_y, test_y = train_test_split(data[['text', 'label_before']].values,
+                                                        data['label'].values,
+                                                        test_size=0.2,
+                                                        random_state=0)
+
+    train = pd.DataFrame({"text": train_X[:, 0], "label": train_y, "label_before": train_X[:, 1]})
+    test = pd.DataFrame({"text": test_X[:, 0], "label": test_y, "label_before": test_X[:, 1]})
+
+    train.to_csv(output_train_path, index=None, encoding='utf-8')
+    test.to_csv(output_test_path, index=None, encoding='utf-8')
+
+
 if __name__ == '__main__':
-    generate_train_dev_csv(input_train_path='../../data/input/train.csv',
-                           output_train_path='../../data/output/train.csv',
-                           output_dev_path='../../data/output/dev.csv')
-    generate_test_csv(input_test_path='../../data/input/test.csv',
-                      output_test_path='../../data/output/test.csv')
+    # generate_train_dev_csv(input_train_path='../../data/input/train.csv',
+    #                        output_train_path='../../data/output/train.csv',
+    #                        output_dev_path='../../data/output/dev.csv')
+    # generate_test_csv(input_test_path='../../data/input/test.csv',
+    #                   output_test_path='../../data/output/test.csv')
+    generate_adversarial_validaion(input_train_path='../../data/output/train.csv',
+                                   input_dev_path='../../data/output/dev.csv',
+                                   input_test_path='../../data/output/test.csv',
+                                   output_test_path='../../data/adversarial_validation/test.csv',
+                                   output_train_path='../../data/adversarial_validation/train.csv')

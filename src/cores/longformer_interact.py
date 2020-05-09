@@ -43,7 +43,8 @@ def load_model_from_experiment(experiment_folder: str):
 
 if __name__ == "__main__":
     parser = HyperOptArgumentParser(description="Minimalist BERT Classifier", add_help=True)
-    parser.add_argument("--experiment", default='../../data/experiments/lightning_logs/version_30-04-2020--16-32-26',
+    parser.add_argument("--experiment",
+                        default='../../data/experiments/lightning_logs/version_09-05_adversarial_validation',
                         type=str, help="Path to the experiment folder.")
     hparams = parser.parse_args()
     print("Loading model...")
@@ -52,26 +53,70 @@ if __name__ == "__main__":
     print("Please write a movie review or quit to exit the interactive shell:")
     # Get input sentence
 
-    test_path = '../../data/output/test.csv'
-    test = pd.read_csv(test_path, encoding='utf-8')
+    adversarial_validation = True
+    if adversarial_validation:
+        train_path = '../../data/adversarial_validation/train.csv'
+        test_path = '../../data/adversarial_validation/test.csv'
+        test = pd.read_csv(test_path, encoding='utf-8')
+        train = pd.read_csv(train_path, encoding='utf-8')
 
-    labels = []
-    for index in range(0, test.shape[0], 4):
-        if index % 1000 == 0:
-            print(index)
+        data = pd.concat([train, test], ignore_index=True)
+        data = data[data['label'] == 1]
+        data.reset_index(drop=True, inplace=True)
 
-        try:
-            label = model.predict(
-                samples=[{'text': test.iloc[index + 0, 0]},
-                         {'text': test.iloc[index + 1, 0]},
-                         {'text': test.iloc[index + 2, 0]},
-                         {'text': test.iloc[index + 3, 0]}])['predicted_label']
-        except:
-            label = model.predict(
-                samples=[{'text': test.iloc[index + 0, 0]},
-                         {'text': test.iloc[index + 1, 0]}])['predicted_label']
+        labels = []
+        for index in range(0, data.shape[0], 4):
+            if index % 1000 == 0:
+                print(index)
 
-        labels.extend(label)
+            try:
+                label = model.predict(
+                    samples=[{'text': data.iloc[index + 0, 0]},
+                             {'text': data.iloc[index + 1, 0]},
+                             {'text': data.iloc[index + 2, 0]},
+                             {'text': data.iloc[index + 3, 0]}],
+                    probability=True)['predicted_label']
+            except Exception as e:
+                print(e)
+                label = model.predict(
+                    samples=[{'text': data.iloc[index + 0, 0]},
+                             {'text': data.iloc[index + 1, 0]}],
+                    probability=True)['predicted_label']
 
-    test['label'] = labels
-    test['label'].to_csv('../../data/output/keys_longformer.csv', header=None, encoding='utf-8')
+            labels.extend(label)
+
+        data['label_after'] = labels
+        data.sort_values(by='label_after', inplace=True, ascending=False)
+        data.reset_index(drop=True, inplace=True)
+        data['label'] = data['label_before']
+        dev_rate_value = int(data.shape[0] * 0.2)
+        dev = data.loc[:dev_rate_value]
+        train = data.loc[dev_rate_value + 1:]
+
+        dev[['text', 'label']].to_csv('../../data/output/dev.csv', index=None, encoding='utf-8')
+        train[['text', 'label']].to_csv('../../data/output/train.csv', index=None, encoding='utf-8')
+
+    else:
+        test_path = '../../data/output/test.csv'
+        test = pd.read_csv(test_path, encoding='utf-8')
+
+        labels = []
+        for index in range(0, test.shape[0], 4):
+            if index % 1000 == 0:
+                print(index)
+
+            try:
+                label = model.predict(
+                    samples=[{'text': test.iloc[index + 0, 0]},
+                             {'text': test.iloc[index + 1, 0]},
+                             {'text': test.iloc[index + 2, 0]},
+                             {'text': test.iloc[index + 3, 0]}])['predicted_label']
+            except:
+                label = model.predict(
+                    samples=[{'text': test.iloc[index + 0, 0]},
+                             {'text': test.iloc[index + 1, 0]}])['predicted_label']
+
+            labels.extend(label)
+
+        test['label'] = labels
+        test['label'].to_csv('../../data/output/keys_longformer.csv', header=None, encoding='utf-8')
