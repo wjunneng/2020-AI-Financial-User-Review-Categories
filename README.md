@@ -27,5 +27,9 @@
     score:89.5073    
     
   
-    -*- longformer + preprocess -*-
+    -*- longformer + preprocess + adversarial_validation-*-
+    min_epochs = 8
+    max_eppochs = 10
+    batch:4
+    score:89.81    
     
