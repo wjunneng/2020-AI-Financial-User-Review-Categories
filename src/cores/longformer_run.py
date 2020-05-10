@@ -159,7 +159,8 @@ if __name__ == "__main__":
     parser = LONGFORMERClassifier.add_model_specific_args(parser)
     hparams = parser.parse_args()
 
-    adversarial_validation = True
+    # adversarial_validation = True
+    adversarial_validation = False
     if adversarial_validation:
         hparams.gpus = 1
         hparams.batch_size = 4

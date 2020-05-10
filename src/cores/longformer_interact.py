@@ -53,7 +53,8 @@ if __name__ == "__main__":
     print("Please write a movie review or quit to exit the interactive shell:")
     # Get input sentence
 
-    adversarial_validation = True
+    # adversarial_validation = True
+    adversarial_validation = False
     if adversarial_validation:
         train_path = '../../data/adversarial_validation/train.csv'
         test_path = '../../data/adversarial_validation/test.csv'
@@ -77,10 +78,10 @@ if __name__ == "__main__":
                              {'text': data.iloc[index + 3, 0]}],
                     probability=True)['predicted_label']
             except Exception as e:
-                print(e)
                 label = model.predict(
                     samples=[{'text': data.iloc[index + 0, 0]},
-                             {'text': data.iloc[index + 1, 0]}],
+                             {'text': data.iloc[index + 1, 0]},
+                             {'text': data.iloc[index + 2, 0]}],
                     probability=True)['predicted_label']
 
             labels.extend(label)
