@@ -61,7 +61,8 @@ class LONGFORMERClassifier(pl.LightningModule):
             self.encoder_features = 768
 
         # Tokenizer
-        self.tokenizer = LONGFORMERTextEncoder('../../data/roberta-base-pytorch/')
+        # self.tokenizer = LONGFORMERTextEncoder('../../data/roberta-base-pytorch/')
+        self.tokenizer = LONGFORMERTextEncoder('../../data/roberta-large-pytorch/')
 
         # Label Encoder
         self.label_encoder = LabelEncoder(self.hparams.label_set.split(","), reserved_labels=[])
