@@ -291,14 +291,39 @@ def generate_adversarial_validaion(input_train_path, input_dev_path, input_test_
     test.to_csv(output_test_path, index=None, encoding='utf-8')
 
 
+def generate_train_pseudo_tag(input_train_path, input_test_path, input_keys_path, output_train_path):
+    # text, label
+    train = pd.read_csv(input_train_path)
+    # text
+    test = pd.read_csv(input_test_path)
+    # keys
+    keys = pd.read_csv(input_keys_path, header=None)
+    # 类别标签
+    keys.columns = ['id', 'label']
+    test = pd.concat([test, keys], axis=1, ignore_index=True)
+    test.columns = ['text', 'id', 'label']
+    print(test.columns)
+    train = pd.concat([train, test[['text', 'label']]], axis=0, names=['text', 'label'], ignore_index=True)
+    train.reset_index(inplace=True, drop=True)
+
+    train.to_csv(output_train_path, index=None, encoding='utf-8')
+
+
 if __name__ == '__main__':
     # generate_train_dev_csv(input_train_path='../../data/input/train.csv',
     #                        output_train_path='../../data/output/train.csv',
     #                        output_dev_path='../../data/output/dev.csv')
+
     # generate_test_csv(input_test_path='../../data/input/test.csv',
     #                   output_test_path='../../data/output/test.csv')
-    generate_adversarial_validaion(input_train_path='../../data/output/train.csv',
-                                   input_dev_path='../../data/output/dev.csv',
-                                   input_test_path='../../data/output/test.csv',
-                                   output_test_path='../../data/adversarial_validation/test.csv',
-                                   output_train_path='../../data/adversarial_validation/train.csv')
+
+    # generate_adversarial_validaion(input_train_path='../../data/output/train.csv',
+    #                                input_dev_path='../../data/output/dev.csv',
+    #                                input_test_path='../../data/output/test.csv',
+    #                                output_test_path='../../data/adversarial_validation/test.csv',
+    #                                output_train_path='../../data/adversarial_validation/train.csv')
+
+    generate_train_pseudo_tag(input_test_path='../../data/output/test.csv',
+                              input_train_path='../../data/output/train.csv',
+                              input_keys_path='../../data/output/keys_longformer.csv',
+                              output_train_path='../../data/output/train_pseudo_tag.csv')

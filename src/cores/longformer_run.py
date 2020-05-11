@@ -159,9 +159,9 @@ if __name__ == "__main__":
     parser = LONGFORMERClassifier.add_model_specific_args(parser)
     hparams = parser.parse_args()
 
-    # adversarial_validation = True
-    adversarial_validation = False
-    if adversarial_validation:
+    # run_type = 'adversarial_validation'
+    run_type = 'pesudo_tag'
+    if run_type == 'adversarial_validation':
         hparams.gpus = 1
         hparams.batch_size = 4
         hparams.accumulate_grad_batches = 1
@@ -178,6 +178,24 @@ if __name__ == "__main__":
         hparams.test_csv = '../../data/adversarial_validation/test.csv'
         hparams.label_set = '0,1'
         hparams.num_labels = 2
+    elif run_type == 'pesudo_tag':
+        # parameters
+        hparams.gpus = 1
+        hparams.batch_size = 4
+        hparams.accumulate_grad_batches = 1
+        hparams.loader_workers = 0
+        hparams.nr_frozen_epochs = 1
+        hparams.save_top_k = 3
+        hparams.patience = 5
+        hparams.min_epochs = 8
+        hparams.max_eppochs = 10
+        hparams.encoder_model = '../../data/longformer-base-4096'
+
+        hparams.train_csv = '../../data/output/train_pseudo_tag.csv'
+        hparams.dev_csv = '../../data/output/dev.csv'
+        hparams.test_csv = '../../data/output/dev.csv'
+        hparams.label_set = '0,1,2,3,4,5,6,7,8,9,10'
+        hparams.num_labels = 11
     else:
         # parameters
         hparams.gpus = 1
