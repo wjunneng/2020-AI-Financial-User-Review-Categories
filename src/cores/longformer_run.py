@@ -167,8 +167,8 @@ if __name__ == "__main__":
         hparams.accumulate_grad_batches = 1
         hparams.loader_workers = 0
         hparams.nr_frozen_epochs = 1
-        hparams.save_top_k = 3
-        hparams.patience = 5
+        hparams.save_top_k = 6
+        hparams.patience = 6
         hparams.min_epochs = 8
         hparams.max_eppochs = 10
         hparams.encoder_model = '../../data/longformer-base-4096'
@@ -185,8 +185,8 @@ if __name__ == "__main__":
         hparams.accumulate_grad_batches = 1
         hparams.loader_workers = 0
         hparams.nr_frozen_epochs = 1
-        hparams.save_top_k = 3
-        hparams.patience = 5
+        hparams.save_top_k = 6
+        hparams.patience = 6
         hparams.min_epochs = 8
         hparams.max_eppochs = 10
         hparams.encoder_model = '../../data/longformer-base-4096'
@@ -203,8 +203,8 @@ if __name__ == "__main__":
         hparams.accumulate_grad_batches = 1
         hparams.loader_workers = 0
         hparams.nr_frozen_epochs = 1
-        hparams.save_top_k = 3
-        hparams.patience = 5
+        hparams.save_top_k = 6
+        hparams.patience = 6
         hparams.min_epochs = 8
         hparams.max_eppochs = 10
         hparams.encoder_model = '../../data/longformer-base-4096'
