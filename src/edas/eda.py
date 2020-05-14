@@ -16,7 +16,7 @@ pd.set_option('display.max_colwidth', 1000)
 class EDA(object):
     def __init__(self, path):
         self.path = path
-        self.data = pd.read_csv(self.path)
+        self.data = pd.read_csv(self.path, header=None, names=['id', 'label'])
 
     def main(self):
         """
@@ -90,23 +90,31 @@ class EDA(object):
         print('---------------------------------------------')
         """
             label   cnt
-        0       0  1135
-        1       1  6129
-        2       2  2445
-        3       3  3153
-        4       4  1968
-        5       5   780
-        6       6  1964
-        7       7   129
-        8       8   199
-        9       9   172
-        10     10    41        
+        0       0  1135 消费贷款
+        1       1  6129 抵押
+        2       2  2445 信用卡
+        3       3  3153 债务催收
+        4       4  1968 信用报告
+        5       5   780 学生贷款
+        6       6  1964 银行账户服务
+        7       7   129 短期小额贷款
+        8       8   199 汇款
+        9       9   172 预付卡
+        10     10    41 其他金融服务       
+        
+        消费贷款/学生贷款短期小额贷款
+        信用卡/信用报告预付卡/汇款
+        抵押/债务催收
+        银行账户服务/其他金融服务
+        
         """
         print(self.data.groupby(['label'], as_index=False)['label'].agg({'cnt': 'count'}))
 
 
 if __name__ == '__main__':
     path = '../../data/input/train.csv'
+    # path = '../../data/output/keys_90_21.csv'
+    # path = '../../data/output/keys_89_81.csv'
 
     eda = EDA(path=path)
 
